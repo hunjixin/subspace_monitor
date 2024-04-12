@@ -12,31 +12,32 @@ import (
 	jsonrpc "github.com/ybbus/jsonrpc/v3"
 )
 
-var url string
 var fsURL string
 
 func main() {
-	flag.StringVar(&url, "url", "http://127.0.0.1:9944", "")
 	flag.StringVar(&fsURL, "fs-url", "", "")
 	flag.Parse()
 
-	fmt.Println(run(context.Background()))
+	fmt.Println(run(context.Background(), flag.Args()))
 }
 
-func run(ctx context.Context) error {
-	client := NewSubpsaceClient(url)
+func run(ctx context.Context, urls []string) error {
+
 	for {
-		farmInfo, err := client.GetFarmerAppInfo(ctx)
-		if err != nil {
-			log.Println("request subspace node fail ", err)
-			continue
+		for _, url := range urls {
+			client := NewSubpsaceClient(url)
+			farmInfo, err := client.GetFarmerAppInfo(ctx)
+			if err != nil {
+				log.Println("request subspace node fail ", err)
+				continue
+			}
+			if farmInfo.Syncing {
+				//https://open.feishu.cn/open-apis/bot/v2/hook/2ef10f9a-e7a3-4268-a2ea-f0f46848979a
+				sendFs(fsURL, fmt.Sprintf("%s 同步错误", url))
+			}
 		}
-		if farmInfo.Syncing {
-			//https://open.feishu.cn/open-apis/bot/v2/hook/2ef10f9a-e7a3-4268-a2ea-f0f46848979a
-			sendFs(fsURL, fmt.Sprintf("测试 %s 同步错误", url))
-		}
+
 		time.Sleep(time.Minute)
-		sendFs(fsURL, url+"subspace not sync")
 	}
 }
 
