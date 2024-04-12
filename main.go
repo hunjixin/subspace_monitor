@@ -32,7 +32,6 @@ func run(ctx context.Context, urls []string) error {
 				continue
 			}
 			if farmInfo.Syncing {
-				//https://open.feishu.cn/open-apis/bot/v2/hook/2ef10f9a-e7a3-4268-a2ea-f0f46848979a
 				sendFs(fsURL, fmt.Sprintf("%s 同步错误", url))
 			}
 		}
